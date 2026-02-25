@@ -682,6 +682,26 @@ const removeDuplicates = (alerts: any[]) => {
     return "NEUTRAL";
   };
 
+  // Helper function to format trigger for display
+const formatTriggerText = (trigger: string) => {
+  if (!trigger) return 'momentum';
+  
+  const triggerMap: { [key: string]: string } = {
+    '52WH': '52-Week High',
+    '52WL': '52-Week Low',
+    'ATH': 'All-Time High',
+    'ATL': 'All-Time Low',
+    'MOM': 'Momentum',
+    'RSI_OB': 'RSI Overbought',
+    'RSI_OS': 'RSI Oversold',
+    'VOL_SPIKE': 'Volume Spike',
+    'BREAKOUT': 'Breakout',
+    'PULLBACK': 'Pullback'
+  };
+  
+  return triggerMap[trigger] || trigger;
+};
+
   // Helper function to extract URL from markdown format
   const extractUrlFromMarkdown = (markdown: string) => {
     if (!markdown) return '#';
@@ -1241,32 +1261,32 @@ const removeDuplicates = (alerts: any[]) => {
   };
 
   // Handle view all archived alerts
-  const handleViewAllArchived = () => {
-    const allArchivedAlerts = filteredArchiveGroups.flatMap(group => 
-      group.alerts.map((alert: any) => ({
-        stock: alert.stock || 'N/A',
-        type: alert.type || 'N/A',
-        price: alert.price || '$0.00',
-        change: alert.change || '0%',
-        rsi: alert.rsi || '50',
-        rsiStatus: alert.rsiStatus || 'NEUTRAL',
-        news: alert.news || '#',
-        chart: alert.chart || '#',
-        time: alert.time || 'N/A',
-        strategy: alert.strategy || 'N/A',
-        date: alert.date || group.date || new Date().toISOString().split('T')[0],
-        description: alert.description || 'No description available.',
-        marketCap: alert.marketCap || 'N/A',
-        timestamp: alert.timestamp || new Date().toISOString()
-      }))
-    );
-    
-    setSelectedArchivedAlert({
-      type: 'all',
-      alerts: allArchivedAlerts
-    });
-    setShowArchivedDetails(true);
-  };
+const handleViewAllArchived = () => {
+  const allArchivedAlerts = filteredArchiveGroups.flatMap(group => 
+    group.alerts.map((alert: any) => ({
+      stock: alert.stock || 'N/A',
+      type: alert.type || 'N/A',
+      price: alert.price || '$0.00',
+      change: alert.change || '0%',
+      rsi: alert.rsi || '50',
+      news: alert.news || '#',
+      chart: alert.chart || '#',
+      time: alert.time || 'N/A',
+      strategy: alert.strategy || 'N/A',
+      date: alert.date || group.date || new Date().toISOString().split('T')[0],
+      description: alert.description || `${alert.stock || 'Stock'} triggered ${alert.trigger === 'ATH' || alert.trigger === 'ATL' ? 'an' : 'a'} ${formatTriggerText(alert.trigger)} alert with RSI ${alert.rsi || 'N/A'}.`,
+      marketCap: alert.marketCap || 'N/A',
+      timestamp: alert.timestamp || new Date().toISOString(),
+      trigger: alert.trigger || 'ALERT'
+    }))
+  );
+  
+  setSelectedArchivedAlert({
+    type: 'all',
+    alerts: allArchivedAlerts
+  });
+  setShowArchivedDetails(true);
+};
 
   // Close archived details
   const handleCloseArchivedDetails = () => {
@@ -1703,63 +1723,68 @@ const removeDuplicates = (alerts: any[]) => {
                       </div>
 
                       {expandedAlertIndex === index && (
-                        <div className="px-5 pb-5 border-t border-slate-700 pt-4 animate-fadeIn">
-                          <div className="mb-4">
-                            <h4 className="font-bold text-lg mb-3">ALERT STRATEGY: {alert.strategy}</h4>
-                            <div className="grid grid-cols-2 gap-4">
-                              <div className="bg-slate-800/50 p-3 rounded-lg">
-                                <p className="text-xs text-slate-400 mb-1">Stock: {alert.stock} (US)</p>
-                                <p className="text-xl font-bold">{alert.price}</p>
-                                <p className={`text-sm ${alert.change.startsWith('+') ? 'text-green-400' : 'text-red-400'}`}>
-                                  {alert.change}
-                                </p>
-                              </div>
-                              
-                              <div className="bg-slate-800/50 p-3 rounded-lg">
-                                <p className="text-xs text-slate-400 mb-1">RSI</p>
-                                <div className="flex items-center justify-between">
-                                  <p className="text-xl font-bold">{alert.rsi}</p>
-                                  <span className={`text-xs px-2 py-1 rounded ${getRsiBgColor(alert.rsiStatus)} ${getRsiColor(alert.rsiStatus)}`}>
-                                    {alert.rsiStatus}
-                                  </span>
-                                </div>
-                                <p className="text-xs text-slate-400 mt-1">Relative Strength Index</p>
-                              </div>
-                            </div>
-                          </div>
+  <div className="px-5 pb-5 border-t border-slate-700 pt-4 animate-fadeIn">
+    <div className="mb-4">
+      <h4 className="font-bold text-lg mb-3">
+        ALERT STRATEGY: {alert.strategy}
+        {/* Add trigger badge */}
+        {alert.trigger && (
+          <span className="ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-500/20 text-purple-400 border border-purple-500/30">
+            {alert.trigger}
+          </span>
+        )}
+      </h4>
+      
+      <div className="grid grid-cols-2 gap-4 mb-4">
+        <div className="bg-slate-800/50 p-3 rounded-lg">
+          <p className="text-xs text-slate-400 mb-1">Stock: {alert.stock} (US)</p>
+          <p className="text-xl font-bold">{alert.price}</p>
+          <p className={`text-sm ${alert.change.startsWith('+') ? 'text-green-400' : 'text-red-400'}`}>
+            {alert.change}
+          </p>
+        </div>
+        
+        <div className="bg-slate-800/50 p-3 rounded-lg">
+          <p className="text-xs text-slate-400 mb-1">RSI</p>
+          <p className="text-xl font-bold">{alert.rsi}</p>
+          <p className="text-xs text-slate-400 mt-1">Relative Strength Index</p>
+        </div>
+      </div>
+    </div>
 
-                          <div className="mb-4">
-                            <p className="font-medium mb-2">Analysis:</p>
-                            <p className="text-sm text-slate-300 bg-slate-800/30 p-3 rounded">
-                              {alert.description || "No analysis available."}
-                            </p>
-                          </div>
+    <div className="mb-4">
+      <p className="font-medium mb-2">Analysis:</p>
+      <p className="text-sm text-slate-300 bg-slate-800/30 p-3 rounded">
+        {alert.stock} triggered {alert.trigger === 'ATH' || alert.trigger === 'ATL' ? 'an' : 'a'} {formatTriggerText(alert.trigger)} alert with RSI {alert.rsi}.
+      </p>
+    </div>
 
-                          <div className="space-y-3">
-                            <a
-                              href={alert.chart}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors"
-                            >
-                              <BarChart className="w-4 h-4" />
-                              <span className="text-sm font-medium">TradingView Chart</span>
-                              <ExternalLink className="w-3 h-3 ml-auto" />
-                            </a>
-                            
-                            <a
-                              href={alert.news}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors"
-                            >
-                              <Newspaper className="w-4 h-4" />
-                              <span className="text-sm font-medium">Latest News & Analysis</span>
-                              <ExternalLink className="w-3 h-3 ml-auto" />
-                            </a>
-                          </div>
-                        </div>
-                      )}
+    <div className="space-y-3">
+      <a
+        href={alert.chart}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors"
+      >
+        <BarChart className="w-4 h-4" />
+        <span className="text-sm font-medium">TradingView Chart</span>
+        <ExternalLink className="w-3 h-3 ml-auto" />
+      </a>
+      
+      <a
+        href={alert.news}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors"
+      >
+        <Newspaper className="w-4 h-4" />
+        <span className="text-sm font-medium">Latest News & Analysis</span>
+        <ExternalLink className="w-3 h-3 ml-auto" />
+      </a>
+    </div>
+  </div>
+)}
+                    
                     </div>
                   ))}
                   
@@ -1947,80 +1972,83 @@ const removeDuplicates = (alerts: any[]) => {
             
             <div className="flex-1 overflow-y-auto p-6">
               <div className="space-y-4">
-                {selectedArchivedAlert.alerts.map((alert: any, index: number) => (
-                  <div 
-                    key={index}
-                    className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700 rounded-xl hover:border-cyan-500/30 hover:shadow-lg transition-all duration-300 group overflow-hidden"
-                  >
-                    <div className="p-5">
-                      <div className="flex justify-between items-start mb-4">
-                        <div>
-                          <div className="flex items-center gap-3 mb-2">
-                            <span className="font-bold text-xl text-cyan-400">{alert.stock}</span>
-                            <span className="text-xs bg-slate-700 px-2 py-1 rounded">NYSE/NASDAQ</span>
-                          </div>
-                          <h4 className="font-bold text-lg mb-3">ALERT STRATEGY: {alert.strategy}</h4>
-                        </div>
-                        <div className="text-right">
-                          <span className="text-cyan-400 font-medium">{alert.type}</span>
-                          <p className="text-xs text-slate-400 mt-1">{alert.date} • {alert.time}</p>
-                        </div>
-                      </div>
+               {selectedArchivedAlert.alerts.map((alert: any, index: number) => (
+  <div 
+    key={index}
+    className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700 rounded-xl hover:border-cyan-500/30 hover:shadow-lg transition-all duration-300 group overflow-hidden"
+  >
+    <div className="p-5">
+      <div className="flex justify-between items-start mb-4">
+        <div>
+          <div className="flex items-center gap-3 mb-2">
+            <span className="font-bold text-xl text-cyan-400">{alert.stock}</span>
+            <span className="text-xs bg-slate-700 px-2 py-1 rounded">NYSE/NASDAQ</span>
+            {/* Add trigger badge */}
+            {alert.trigger && (
+              <span className="text-xs bg-purple-500/20 text-purple-400 px-2 py-1 rounded-full border border-purple-500/30">
+                {alert.trigger}
+              </span>
+            )}
+          </div>
+          <h4 className="font-bold text-lg mb-3">
+            ALERT STRATEGY: {alert.strategy}
+          </h4>
+        </div>
+        <div className="text-right">
+          <span className="text-cyan-400 font-medium">{alert.type}</span>
+          <p className="text-xs text-slate-400 mt-1">{alert.date} • {alert.time}</p>
+        </div>
+      </div>
 
-                      <div className="grid grid-cols-2 gap-4 mb-4">
-                        <div className="bg-slate-800/50 p-3 rounded-lg">
-                          <p className="text-xs text-slate-400 mb-1">Stock: {alert.stock} (US)</p>
-                          <p className="text-xl font-bold">{alert.price}</p>
-                          <p className={`text-sm ${alert.change.startsWith('+') ? 'text-green-400' : 'text-red-400'}`}>
-                            {alert.change}
-                          </p>
-                        </div>
-                        
-                        <div className="bg-slate-800/50 p-3 rounded-lg">
-                          <p className="text-xs text-slate-400 mb-1">RSI</p>
-                          <div className="flex items-center justify-between">
-                            <p className="text-xl font-bold">{alert.rsi}</p>
-                            <span className={`text-xs px-2 py-1 rounded ${getRsiBgColor(alert.rsiStatus)} ${getRsiColor(alert.rsiStatus)}`}>
-                              {alert.rsiStatus}
-                            </span>
-                          </div>
-                          <p className="text-xs text-slate-400 mt-1">Relative Strength Index</p>
-                        </div>
-                      </div>
+      <div className="grid grid-cols-2 gap-4 mb-4">
+        <div className="bg-slate-800/50 p-3 rounded-lg">
+          <p className="text-xs text-slate-400 mb-1">Stock: {alert.stock} (US)</p>
+          <p className="text-xl font-bold">{alert.price}</p>
+          <p className={`text-sm ${alert.change.startsWith('+') ? 'text-green-400' : 'text-red-400'}`}>
+            {alert.change}
+          </p>
+        </div>
+        
+        <div className="bg-slate-800/50 p-3 rounded-lg">
+          <p className="text-xs text-slate-400 mb-1">RSI</p>
+          <p className="text-xl font-bold">{alert.rsi}</p>
+          <p className="text-xs text-slate-400 mt-1">Relative Strength Index</p>
+        </div>
+      </div>
 
-                      <div className="mb-4">
-                        <p className="font-medium mb-2">Analysis:</p>
-                        <p className="text-sm text-slate-300 bg-slate-800/30 p-3 rounded">
-                          {alert.description || "No analysis available."}
-                        </p>
-                      </div>
+      <div className="mb-4">
+        <p className="font-medium mb-2">Analysis:</p>
+        <p className="text-sm text-slate-300 bg-slate-800/30 p-3 rounded">
+          {alert.stock} triggered {alert.trigger === 'ATH' || alert.trigger === 'ATL' ? 'an' : 'a'} {formatTriggerText(alert.trigger)} alert with RSI {alert.rsi}.
+        </p>
+      </div>
 
-                      <div className="space-y-3">
-                        <a
-                          href={alert.chart}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors"
-                        >
-                          <BarChart className="w-4 h-4" />
-                          <span className="text-sm font-medium">TradingView Chart</span>
-                          <ExternalLink className="w-3 h-3 ml-auto" />
-                        </a>
-                        
-                        <a
-                          href={alert.news}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors"
-                        >
-                          <Newspaper className="w-4 h-4" />
-                          <span className="text-sm font-medium">Latest News & Analysis</span>
-                          <ExternalLink className="w-3 h-3 ml-auto" />
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+      <div className="space-y-3">
+        <a
+          href={alert.chart}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors"
+        >
+          <BarChart className="w-4 h-4" />
+          <span className="text-sm font-medium">TradingView Chart</span>
+          <ExternalLink className="w-3 h-3 ml-auto" />
+        </a>
+        
+        <a
+          href={alert.news}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors"
+        >
+          <Newspaper className="w-4 h-4" />
+          <span className="text-sm font-medium">Latest News & Analysis</span>
+          <ExternalLink className="w-3 h-3 ml-auto" />
+        </a>
+      </div>
+    </div>
+  </div>
+))}
               </div>
             </div>
             

@@ -163,95 +163,96 @@ export default function Live_Alerts_India() {
   };
 
   // ============================================
-  // FIXED: Use UTC for date comparison to match backend
-  // Center: MAX 10 alerts from TODAY only (newest first)
-  // Archive: All older alerts + excess today alerts beyond first 10
-  // ============================================
-  const splitAlertsIntoCenterAndArchive = (allAlerts: any[]) => {
-    // Get UTC date
-    const now = new Date();
-    const todayUTC = new Date(Date.UTC(
-      now.getUTCFullYear(),
-      now.getUTCMonth(),
-      now.getUTCDate()
-    ));
-    const todayStr = todayUTC.toISOString().split('T')[0];
-    
-    console.log("========== DEBUG SPLIT FUNCTION ==========");
-    console.log("1. Current UTC date:", todayStr);
-    console.log("2. Total alerts received:", allAlerts.length);
-    
-    // Log ALL alerts with their dates
-    console.log("3. All alerts with dates:");
-    allAlerts.forEach((alert, index) => {
-      console.log(`   ${index + 1}. ${alert.stock} - date: ${alert.date} - timestamp: ${alert.timestamp}`);
-    });
-    
-    // Check what dates we have
-    const dates = allAlerts.map(a => a.date);
-    const uniqueDates = [...new Set(dates)];
-    console.log("4. Unique dates in alerts:", uniqueDates);
-    
-    // Separate by date
-    const todayAlerts = allAlerts.filter(alert => alert.date === todayStr);
-    const olderAlerts = allAlerts.filter(alert => alert.date !== todayStr);
-    
-    console.log("5. Today's alerts count:", todayAlerts.length);
-    console.log("6. Older alerts count:", olderAlerts.length);
-    
-    // Check for duplicates within todayAlerts
-    const seen = new Set();
-    const duplicates = [];
-    todayAlerts.forEach(alert => {
-      const key = `${alert.stock}-${alert.timestamp}`;
-      if (seen.has(key)) {
-        duplicates.push(alert);
-      }
-      seen.add(key);
-    });
-    
-    console.log("7. Duplicates found in todayAlerts:", duplicates.length);
-    if (duplicates.length > 0) {
-      console.log("   Duplicate examples:", duplicates.slice(0, 3).map(d => ({
-        stock: d.stock,
-        timestamp: d.timestamp,
-        time: d.time
-      })));
+// FIXED: Use IST for date comparison to match India backend
+// Center: MAX 10 alerts from TODAY only (newest first)
+// Archive: All older alerts + excess today alerts beyond first 10
+// ============================================
+const splitAlertsIntoCenterAndArchive = (allAlerts: any[]) => {
+  // Get current date in IST
+  const now = new Date();
+  
+  // Convert to IST (UTC+5:30)
+  const istTime = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
+  
+  // Get IST date string (YYYY-MM-DD)
+  const todayIST = istTime.toISOString().split('T')[0];
+  
+  console.log("========== DEBUG SPLIT FUNCTION (IST) ==========");
+  console.log("1. Current IST date:", todayIST);
+  console.log("2. Current UTC date:", now.toISOString().split('T')[0]);
+  console.log("3. Total alerts received:", allAlerts.length);
+  
+  // Log ALL alerts with their dates
+  console.log("4. All alerts with dates:");
+  allAlerts.forEach((alert, index) => {
+    console.log(`   ${index + 1}. ${alert.stock} - date: ${alert.date} - timestamp: ${alert.timestamp}`);
+  });
+  
+  // Check what dates we have
+  const dates = allAlerts.map(a => a.date);
+  const uniqueDates = [...new Set(dates)];
+  console.log("5. Unique dates in alerts:", uniqueDates);
+  
+  // Separate by date (compare with IST date)
+  const todayAlerts = allAlerts.filter(alert => alert.date === todayIST);
+  const olderAlerts = allAlerts.filter(alert => alert.date !== todayIST);
+  
+  console.log("6. Today's alerts (IST):", todayAlerts.length);
+  console.log("7. Older alerts:", olderAlerts.length);
+  
+  // Check for duplicates within todayAlerts
+  const seen = new Set();
+  const duplicates = [];
+  todayAlerts.forEach(alert => {
+    const key = `${alert.stock}-${alert.timestamp}`;
+    if (seen.has(key)) {
+      duplicates.push(alert);
     }
-    
-    // Sort and remove duplicates
-    const sortedTodayAlerts = [...todayAlerts].sort((a, b) => 
-      new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-    );
-    
-    // Manual duplicate removal
-    const uniqueTodayAlerts = [];
-    const seenKeys = new Set();
-    
-    for (const alert of sortedTodayAlerts) {
-      const key = `${alert.stock}-${alert.timestamp}`;
-      if (!seenKeys.has(key)) {
-        seenKeys.add(key);
-        uniqueTodayAlerts.push(alert);
-      } else {
-        console.log(`   🗑️ Removing duplicate: ${alert.stock} at ${alert.time}`);
-      }
+    seen.add(key);
+  });
+  
+  console.log("8. Duplicates found in todayAlerts:", duplicates.length);
+  if (duplicates.length > 0) {
+    console.log("   Duplicate examples:", duplicates.slice(0, 3).map(d => ({
+      stock: d.stock,
+      timestamp: d.timestamp,
+      time: d.time
+    })));
+  }
+  
+  // Sort and remove duplicates
+  const sortedTodayAlerts = [...todayAlerts].sort((a, b) => 
+    new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+  );
+  
+  // Manual duplicate removal
+  const uniqueTodayAlerts = [];
+  const seenKeys = new Set();
+  
+  for (const alert of sortedTodayAlerts) {
+    const key = `${alert.stock}-${alert.timestamp}`;
+    if (!seenKeys.has(key)) {
+      seenKeys.add(key);
+      uniqueTodayAlerts.push(alert);
+    } else {
+      console.log(`   🗑️ Removing duplicate: ${alert.stock} at ${alert.time}`);
     }
-    
-    console.log("8. Unique today alerts after dedupe:", uniqueTodayAlerts.length);
-    
-    const centerAlerts = uniqueTodayAlerts.slice(0, 10);
-    const excessTodayAlerts = uniqueTodayAlerts.slice(10);
-    
-    console.log("9. Center alerts (first 10):", centerAlerts.length);
-    console.log("10. Excess today alerts:", excessTodayAlerts.length);
-    console.log("==========================================");
-    
-    return { 
-      centerAlerts, 
-      archiveAlerts: [...olderAlerts, ...excessTodayAlerts] 
-    };
+  }
+  
+  console.log("9. Unique today alerts after dedupe:", uniqueTodayAlerts.length);
+  
+  const centerAlerts = uniqueTodayAlerts.slice(0, 10);
+  const excessTodayAlerts = uniqueTodayAlerts.slice(10);
+  
+  console.log("10. Center alerts (first 10):", centerAlerts.length);
+  console.log("11. Excess today alerts:", excessTodayAlerts.length);
+  console.log("==========================================");
+  
+  return { 
+    centerAlerts, 
+    archiveAlerts: [...olderAlerts, ...excessTodayAlerts] 
   };
+};
 
   // Add this helper function RIGHT AFTER the splitAlertsIntoCenterAndArchive function
   // Helper function to remove duplicates
@@ -677,27 +678,10 @@ export default function Live_Alerts_India() {
     "Fundamental Picks (Earnings Season focused)"
   ];
 
-  // Helper function to get RSI status from value
-  const getRsiStatusFromValue = (rsiValue: number) => {
-    if (rsiValue >= 70) return "OVERBOUGHT";
-    if (rsiValue <= 30) return "OVERSOLD";
-    return "NEUTRAL";
-  };
 
-  // Helper function to extract URL from markdown format
-  const extractUrlFromMarkdown = (markdown: string) => {
-    if (!markdown) return '#';
+  
     
-    // Check if it's in [title](url) format
-    const match = markdown.match(/\[.*?\]\((.*?)\)/);
-    if (match && match[1]) {
-      return match[1]; // Return the URL part
-    }
     
-    // If it's already a plain URL, return as is
-    return markdown;
-  };
-
   // Function to fetch momentum alerts from API
   const fetchMomentumAlerts = async () => {
     try {
@@ -1259,33 +1243,36 @@ export default function Live_Alerts_India() {
     setExpandedArchivedAlert(expandedArchivedAlert === alertKey ? null : alertKey);
   };
 
+  
   // Handle view all archived alerts
-  const handleViewAllArchived = () => {
-    const allArchivedAlerts = filteredArchiveGroups.flatMap(group => 
-      group.alerts.map((alert: any) => ({
-        stock: alert.stock || 'N/A',
-        type: alert.type || 'N/A',
-        price: alert.price || '₹0.00',
-        change: alert.change || '0%',
-        rsi: alert.rsi || '50',
-        rsiStatus: alert.rsiStatus || 'NEUTRAL',
-        news: alert.news || '#',
-        chart: alert.chart || '#',
-        time: alert.time || 'N/A',
-        strategy: alert.strategy || 'N/A',
-        date: alert.date || group.date || new Date().toISOString().split('T')[0],
-        description: alert.description || 'No description available.',
-        marketCap: alert.marketCap || 'N/A',
-        timestamp: alert.timestamp || new Date().toISOString()
-      }))
-    );
-    
-    setSelectedArchivedAlert({
-      type: 'all',
-      alerts: allArchivedAlerts
-    });
-    setShowArchivedDetails(true);
-  };
+// Handle view all archived alerts
+const handleViewAllArchived = () => {
+  const allArchivedAlerts = filteredArchiveGroups.flatMap(group => 
+    group.alerts.map((alert: any) => ({
+      stock: alert.stock || 'N/A',
+      type: alert.type || 'N/A',
+      price: alert.price || '₹0.00',
+      change: alert.change || '0%',
+      rsi: alert.rsi || '50',
+      news: alert.news || '#',
+      chart: alert.chart || '#',
+      time: alert.time || 'N/A',
+      strategy: alert.strategy || 'N/A',
+      date: alert.date || group.date || new Date().toISOString().split('T')[0],
+      description: alert.description || `${alert.stock || 'Stock'} triggered ${alert.trigger === 'ATH' || alert.trigger === 'ATL' ? 'an' : 'a'} ${formatTriggerText(alert.trigger)} alert with RSI ${alert.rsi || 'N/A'}.`,
+      marketCap: alert.marketCap || 'N/A',
+      timestamp: alert.timestamp || new Date().toISOString(),
+      trigger: alert.trigger || 'ALERT'
+    }))
+  );
+  
+  setSelectedArchivedAlert({
+    type: 'all',
+    alerts: allArchivedAlerts
+  });
+  setShowArchivedDetails(true);
+};
+
 
   // Close archived details
   const handleCloseArchivedDetails = () => {
@@ -1312,6 +1299,47 @@ export default function Live_Alerts_India() {
       default: return "bg-slate-500/20";
     }
   };
+
+  // Helper function to get RSI status from value
+const getRsiStatusFromValue = (rsiValue: number) => {
+  if (rsiValue >= 70) return "OVERBOUGHT";
+  if (rsiValue <= 30) return "OVERSOLD";
+  return "NEUTRAL";
+};
+
+// Helper function to format trigger for display - ADD THIS NEW FUNCTION
+const formatTriggerText = (trigger: string) => {
+  if (!trigger) return 'momentum';
+  
+  const triggerMap: { [key: string]: string } = {
+    '52WH': '52-Week High',
+    '52WL': '52-Week Low',
+    'ATH': 'All-Time High',
+    'ATL': 'All-Time Low',
+    'MOM': 'Momentum',
+    'RSI_OB': 'RSI Overbought',
+    'RSI_OS': 'RSI Oversold',
+    'VOL_SPIKE': 'Volume Spike',
+    'BREAKOUT': 'Breakout',
+    'PULLBACK': 'Pullback'
+  };
+  
+  return triggerMap[trigger] || trigger;
+};
+
+// Helper function to extract URL from markdown format
+const extractUrlFromMarkdown = (markdown: string) => {
+  if (!markdown) return '#';
+  
+  // Check if it's in [title](url) format
+  const match = markdown.match(/\[.*?\]\((.*?)\)/);
+  if (match && match[1]) {
+    return match[1]; // Return the URL part
+  }
+  
+  // If it's already a plain URL, return as is
+  return markdown;
+};
 
   // India Telegram subscribe function
   const handleTelegramSubscribe = () => {
@@ -1722,63 +1750,68 @@ export default function Live_Alerts_India() {
                       </div>
 
                       {expandedAlertIndex === index && (
-                        <div className="px-5 pb-5 border-t border-slate-700 pt-4 animate-fadeIn">
-                          <div className="mb-4">
-                            <h4 className="font-bold text-lg mb-3">ALERT STRATEGY: {alert.strategy}</h4>
-                            <div className="grid grid-cols-2 gap-4">
-                              <div className="bg-slate-800/50 p-3 rounded-lg">
-                                <p className="text-xs text-slate-400 mb-1">Stock: {alert.stock} (India)</p>
-                                <p className="text-xl font-bold">{alert.price}</p>
-                                <p className={`text-sm ${alert.change.startsWith('+') ? 'text-green-400' : 'text-red-400'}`}>
-                                  {alert.change}
-                                </p>
-                              </div>
-                              
-                              <div className="bg-slate-800/50 p-3 rounded-lg">
-                                <p className="text-xs text-slate-400 mb-1">RSI</p>
-                                <div className="flex items-center justify-between">
-                                  <p className="text-xl font-bold">{alert.rsi}</p>
-                                  <span className={`text-xs px-2 py-1 rounded ${getRsiBgColor(alert.rsiStatus)} ${getRsiColor(alert.rsiStatus)}`}>
-                                    {alert.rsiStatus}
-                                  </span>
-                                </div>
-                                <p className="text-xs text-slate-400 mt-1">Relative Strength Index</p>
-                              </div>
-                            </div>
-                          </div>
+  <div className="px-5 pb-5 border-t border-slate-700 pt-4 animate-fadeIn">
+    <div className="mb-4">
+      <h4 className="font-bold text-lg mb-3">
+        ALERT STRATEGY: {alert.strategy}
+        {/* Add trigger badge */}
+        {alert.trigger && (
+          <span className="ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-500/20 text-purple-400 border border-purple-500/30">
+            {alert.trigger}
+          </span>
+        )}
+      </h4>
+      
+      <div className="grid grid-cols-2 gap-4 mb-4">
+        <div className="bg-slate-800/50 p-3 rounded-lg">
+          <p className="text-xs text-slate-400 mb-1">Stock: {alert.stock} (India)</p>
+          <p className="text-xl font-bold">{alert.price}</p>
+          <p className={`text-sm ${alert.change.startsWith('+') ? 'text-green-400' : 'text-red-400'}`}>
+            {alert.change}
+          </p>
+        </div>
+        
+        <div className="bg-slate-800/50 p-3 rounded-lg">
+          <p className="text-xs text-slate-400 mb-1">RSI</p>
+          <p className="text-xl font-bold">{alert.rsi}</p>
+          <p className="text-xs text-slate-400 mt-1">Relative Strength Index</p>
+        </div>
+      </div>
+    </div>
 
-                          <div className="mb-4">
-                            <p className="font-medium mb-2">Analysis:</p>
-                            <p className="text-sm text-slate-300 bg-slate-800/30 p-3 rounded">
-                              {alert.description || "No analysis available."}
-                            </p>
-                          </div>
+    <div className="mb-4">
+  <p className="font-medium mb-2">Analysis:</p>
+  <p className="text-sm text-slate-300 bg-slate-800/30 p-3 rounded">
+    {alert.stock} triggered {alert.trigger === 'ATH' || alert.trigger === 'ATL' ? 'an' : 'a'} {formatTriggerText(alert.trigger)} alert with RSI {alert.rsi}.
+  </p>
+</div>
 
-                          <div className="space-y-3">
-                            <a
-                              href={alert.chart}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors"
-                            >
-                              <BarChart className="w-4 h-4" />
-                              <span className="text-sm font-medium">TradingView Chart</span>
-                              <ExternalLink className="w-3 h-3 ml-auto" />
-                            </a>
-                            
-                            <a
-                              href={alert.news}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors"
-                            >
-                              <Newspaper className="w-4 h-4" />
-                              <span className="text-sm font-medium">Latest News & Analysis</span>
-                              <ExternalLink className="w-3 h-3 ml-auto" />
-                            </a>
-                          </div>
-                        </div>
-                      )}
+    <div className="space-y-3">
+      <a
+        href={alert.chart}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors"
+      >
+        <BarChart className="w-4 h-4" />
+        <span className="text-sm font-medium">TradingView Chart</span>
+        <ExternalLink className="w-3 h-3 ml-auto" />
+      </a>
+      
+      <a
+        href={alert.news}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors"
+      >
+        <Newspaper className="w-4 h-4" />
+        <span className="text-sm font-medium">Latest News & Analysis</span>
+        <ExternalLink className="w-3 h-3 ml-auto" />
+      </a>
+    </div>
+  </div>
+)}
+                     
                     </div>
                   ))}
                   
@@ -1966,79 +1999,83 @@ export default function Live_Alerts_India() {
             <div className="flex-1 overflow-y-auto p-6">
               <div className="space-y-4">
                 {selectedArchivedAlert.alerts.map((alert: any, index: number) => (
-                  <div 
-                    key={index}
-                    className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700 rounded-xl hover:border-cyan-500/30 hover:shadow-lg transition-all duration-300 group overflow-hidden"
-                  >
-                    <div className="p-5">
-                      <div className="flex justify-between items-start mb-4">
-                        <div>
-                          <div className="flex items-center gap-3 mb-2">
-                            <span className="font-bold text-xl text-cyan-400">{alert.stock}</span>
-                            <span className="text-xs bg-slate-700 px-2 py-1 rounded">NSE/BSE</span>
-                          </div>
-                          <h4 className="font-bold text-lg mb-3">ALERT STRATEGY: {alert.strategy}</h4>
-                        </div>
-                        <div className="text-right">
-                          <span className="text-cyan-400 font-medium">{alert.type}</span>
-                          <p className="text-xs text-slate-400 mt-1">{alert.date} • {alert.time}</p>
-                        </div>
-                      </div>
+  <div 
+    key={index}
+    className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700 rounded-xl hover:border-cyan-500/30 hover:shadow-lg transition-all duration-300 group overflow-hidden"
+  >
+    <div className="p-5">
+      <div className="flex justify-between items-start mb-4">
+        <div>
+          <div className="flex items-center gap-3 mb-2">
+            <span className="font-bold text-xl text-cyan-400">{alert.stock}</span>
+            <span className="text-xs bg-slate-700 px-2 py-1 rounded">NSE/BSE</span>
+            {/* Add trigger badge */}
+            {alert.trigger && (
+              <span className="text-xs bg-purple-500/20 text-purple-400 px-2 py-1 rounded-full border border-purple-500/30">
+                {alert.trigger}
+              </span>
+            )}
+          </div>
+          <h4 className="font-bold text-lg mb-3">
+            ALERT STRATEGY: {alert.strategy}
+          </h4>
+        </div>
+        <div className="text-right">
+          <span className="text-cyan-400 font-medium">{alert.type}</span>
+          <p className="text-xs text-slate-400 mt-1">{alert.date} • {alert.time}</p>
+        </div>
+      </div>
 
-                      <div className="grid grid-cols-2 gap-4 mb-4">
-                        <div className="bg-slate-800/50 p-3 rounded-lg">
-                          <p className="text-xs text-slate-400 mb-1">Stock: {alert.stock} (India)</p>
-                          <p className="text-xl font-bold">{alert.price}</p>
-                          <p className={`text-sm ${alert.change.startsWith('+') ? 'text-green-400' : 'text-red-400'}`}>
-                            {alert.change}
-                          </p>
-                        </div>
-                        
-                        <div className="bg-slate-800/50 p-3 rounded-lg">
-                          <p className="text-xs text-slate-400 mb-1">RSI</p>
-                          <div className="flex items-center justify-between">
-                            <p className="text-xl font-bold">{alert.rsi}</p>
-                            <span className={`text-xs px-2 py-1 rounded ${getRsiBgColor(alert.rsiStatus)} ${getRsiColor(alert.rsiStatus)}`}>
-                              {alert.rsiStatus}
-                            </span>
-                          </div>
-                          <p className="text-xs text-slate-400 mt-1">Relative Strength Index</p>
-                        </div>
-                      </div>
+      <div className="grid grid-cols-2 gap-4 mb-4">
+        <div className="bg-slate-800/50 p-3 rounded-lg">
+          <p className="text-xs text-slate-400 mb-1">Stock: {alert.stock} (India)</p>
+          <p className="text-xl font-bold">{alert.price}</p>
+          <p className={`text-sm ${alert.change.startsWith('+') ? 'text-green-400' : 'text-red-400'}`}>
+            {alert.change}
+          </p>
+        </div>
+        
+        <div className="bg-slate-800/50 p-3 rounded-lg">
+          <p className="text-xs text-slate-400 mb-1">RSI</p>
+          <p className="text-xl font-bold">{alert.rsi}</p>
+          <p className="text-xs text-slate-400 mt-1">Relative Strength Index</p>
+        </div>
+      </div>
 
-                      <div className="mb-4">
-                        <p className="font-medium mb-2">Analysis:</p>
-                        <p className="text-sm text-slate-300 bg-slate-800/30 p-3 rounded">
-                          {alert.description || "No analysis available."}
-                        </p>
-                      </div>
+      <div className="mb-4">
+  <p className="font-medium mb-2">Analysis:</p>
+  <p className="text-sm text-slate-300 bg-slate-800/30 p-3 rounded">
+    {alert.stock} triggered {alert.trigger === 'ATH' || alert.trigger === 'ATL' ? 'an' : 'a'} {formatTriggerText(alert.trigger)} alert with RSI {alert.rsi}.
+  </p>
+</div>
 
-                      <div className="space-y-3">
-                        <a
-                          href={alert.chart}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors"
-                        >
-                          <BarChart className="w-4 h-4" />
-                          <span className="text-sm font-medium">TradingView Chart</span>
-                          <ExternalLink className="w-3 h-3 ml-auto" />
-                        </a>
-                        
-                        <a
-                          href={alert.news}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors"
-                        >
-                          <Newspaper className="w-4 h-4" />
-                          <span className="text-sm font-medium">Latest News & Analysis</span>
-                          <ExternalLink className="w-3 h-3 ml-auto" />
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+      <div className="space-y-3">
+        <a
+          href={alert.chart}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors"
+        >
+          <BarChart className="w-4 h-4" />
+          <span className="text-sm font-medium">TradingView Chart</span>
+          <ExternalLink className="w-3 h-3 ml-auto" />
+        </a>
+        
+        <a
+          href={alert.news}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors"
+        >
+          <Newspaper className="w-4 h-4" />
+          <span className="text-sm font-medium">Latest News & Analysis</span>
+          <ExternalLink className="w-3 h-3 ml-auto" />
+        </a>
+      </div>
+    </div>
+  </div>
+))}
+                 
               </div>
             </div>
             
