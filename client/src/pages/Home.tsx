@@ -585,7 +585,7 @@ export default function Home() {
                 </div>
                 <div className="text-left">
                   <h3 className="text-white font-semibold text-lg mb-1">Market Insights</h3>
-                  <p className="text-cyan-400 text-sm">AI Giveth and AI Taketh Away</p>
+                  <p className="text-cyan-400 text-sm">Hiking the Investing Life</p>
                 </div>
               </div>
             </button>

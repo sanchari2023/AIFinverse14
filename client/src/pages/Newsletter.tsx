@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import { api } from "@/services/api";
 
+
+const ARTICLE_HIKING = "hiking-life";
 const ARTICLE_AI = "ai-giveth";
 const ARTICLE_INDIA = "india-markets";
 const ARTICLE_GAS = "widowmaker";
@@ -55,7 +57,8 @@ export default function Newsletter() {
   const [expandedArticle2, setExpandedArticle2] = useState(false);
   const [expandedArticle3, setExpandedArticle3] = useState(false);
   const [expandedArticle4, setExpandedArticle4] = useState(false);
-  const [expandedArticle5, setExpandedArticle5] = useState(false);  
+  const [expandedArticle5, setExpandedArticle5] = useState(false); 
+  const [expandedArticle6, setExpandedArticle6] = useState(false);  
   const [hoveredImage, setHoveredImage] = useState<string | null>(null);
   const [hoveredVideo, setHoveredVideo] = useState(false);
   const [isSharedView, setIsSharedView] = useState(false);
@@ -148,23 +151,28 @@ useEffect(() => {
     setExpandedArticle3(false);
     setExpandedArticle4(false);
     setExpandedArticle5(false);
+    setExpandedArticle6(false);
     
     // Expand the correct one
-    if (article === "ai-giveth") {
+    if (article === "hiking-life") {
       console.log("Expanding Article 1");
       setExpandedArticle1(true);
-    } else if (article === "india-markets") {
+    } else if (article === "ai-giveth") {
       console.log("Expanding Article 2");
       setExpandedArticle2(true);
-    } else if (article === "widowmaker") {
+    }
+     else if (article === "india-markets") {
       console.log("Expanding Article 3");
       setExpandedArticle3(true);
-    } else if (article === "year-review") {
+    } else if (article === "widowmaker") {
       console.log("Expanding Article 4");
       setExpandedArticle4(true);
-    } else if (article === "altseason") {
+    } else if (article === "year-review") {
       console.log("Expanding Article 5");
       setExpandedArticle5(true);
+    } else if (article === "altseason") {
+      console.log("Expanding Article 6");
+      setExpandedArticle6(true);
     } else {
       console.log("Unknown article, expanding Article 1");
       setExpandedArticle1(true);
@@ -334,8 +342,348 @@ useEffect(() => {
 )}
 
 
-          {/* ARTICLE 1 - AI GIVETH AND TAKETH */}
+                    {/* ARTICLE 1 - HIKING THE INVESTING LIFE */}
           {(!isSharedView || expandedArticle1) && (
+          <section id="hiking-life" className="mb-16">
+            <div className="p-6 bg-slate-800/60 border border-slate-700/50 rounded-xl backdrop-blur-sm">
+              <div className="flex items-center gap-4 text-sm text-gray-400 mb-6 flex-wrap border-b border-slate-700/50 pb-4">
+                <span className="flex items-center gap-1.5">
+                  <span className="text-lg">📅</span>
+                  <span>5 March 2026</span>
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="text-lg">⏱</span>
+                  <span>6 min read</span>
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="text-lg">✍️</span>
+                  <span className="text-cyan-300">Personal Journey</span>
+                </span>
+                <span className="ml-auto flex items-center gap-2">
+                  {/* Share Button */}
+                  <div className="relative">
+                    <button 
+                      onClick={(e) => handleShareClick("hiking-life", e)}
+                      className="flex items-center gap-1 px-3 py-1.5 bg-slate-700/50 hover:bg-slate-700 border border-slate-600 rounded-lg text-gray-300 text-xs transition-all duration-200"
+                    >
+                      <Share2 size={12} />
+                      Share
+                    </button>
+                    
+                    {/* Share Options Panel */}
+                    {showShare === "hiking-life" && (
+                      <div 
+                        className="absolute right-0 top-8 z-50"
+                        onClick={handleShareOptionClick}
+                      >
+                        <div className="bg-slate-900 border border-slate-700 rounded-lg p-2 shadow-xl min-w-[140px]">
+                          <h4 className="text-white font-semibold text-xs mb-2">Share Article</h4>
+                          
+                          <div className="space-y-1">
+                            <a
+                              href={getShareLinks("hiking-life").whatsapp}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={handleShareOptionClick}
+                              className="flex items-center gap-2 px-2 py-1.5 bg-emerald-900/20 border border-emerald-800/30 rounded text-emerald-300 text-xs hover:bg-emerald-900/30 transition-colors"
+                            >
+                              <img src="/images/whatsapp.png" alt="WhatsApp" className="w-3 h-3" />
+                              WhatsApp
+                            </a>
+
+                            <a
+                              href={getShareLinks("hiking-life").telegram}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={handleShareOptionClick}
+                              className="flex items-center gap-2 px-2 py-1.5 bg-sky-900/20 border border-sky-800/30 rounded text-sky-300 text-xs hover:bg-sky-900/30 transition-colors"
+                            >
+                              <img src="/images/telegram.png" alt="Telegram" className="w-3 h-3" />
+                              Telegram
+                            </a>
+
+                            <a
+                              href={getShareLinks("hiking-life").linkedin}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={handleShareOptionClick}
+                              className="flex items-center gap-2 px-2 py-1.5 bg-blue-900/20 border border-blue-800/30 rounded text-blue-300 text-xs hover:bg-blue-900/30 transition-colors"
+                            >
+                              <img src="/images/linkedin.png" alt="LinkedIn" className="w-3 h-3" />
+                              LinkedIn
+                            </a>
+
+                            <button
+                              onClick={(e) => {
+                                handleShareOptionClick(e);
+                                navigator.clipboard.writeText(getShareLinks("hiking-life").copy);
+                                setShowShare(null);
+                              }}
+                              className="w-full flex items-center gap-2 px-2 py-1.5 bg-slate-700/30 border border-slate-600/30 rounded text-gray-300 text-xs hover:bg-slate-700/40 transition-colors"
+                            >
+                              <Copy size={12} />
+                              Copy Link
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </span>
+              </div>
+              
+              <div className="flex flex-col lg:flex-row gap-8">
+                <div className="flex-1">
+                  <div className="mb-6">
+                    <div className="inline-block px-3 py-1 bg-emerald-900/30 text-emerald-300 rounded-full text-xs font-medium mb-3 border border-emerald-800/50">
+                      Life & Investing
+                    </div>
+                    <h3 className="text-2xl font-bold text-white leading-tight">
+                      Hiking the Investing Life
+                    </h3>
+                    <p className="text-gray-300 mt-4 text-sm leading-relaxed">
+                      I wrote this last year while the previous version of Iran - Israel war was on going, nothing has changed when it comes to investing lessons while we go thru a wider new version of the war.
+                    </p>
+                  </div>
+
+                  {/* First paragraph - Always visible */}
+                  <div className="text-gray-300 text-sm leading-relaxed mb-6">
+                    <p className="leading-relaxed">
+                      Having finished my first real hike, to the Big Almaty Lake last Saturday, I sat down to process the journey and what all I went through along the way. I sprained my ankle before the hike even started, went in the wrong direction twice, slipping and hurting my hip bone, my right shoulder and small bruises on the elbow. I also got blisters in my feet not too far along the hike and they were hurting throughout. It made me realize how similar a hike is to investing life. Sometimes it feels similar for an investor, you get on a wrong path multiple times, you make some wrong moves, lose money or make lower returns and there's pain along the way but there's always a way back as long as you believe in your end goal and are ready to restart the journey.
+                    </p>
+                  </div>
+
+                  {/* First Image - Always visible */}
+                  <div className="my-8 flex flex-col items-center">
+                    <div 
+                      className={`relative overflow-hidden rounded-lg border border-slate-600 transition-all duration-300 ease-out w-full max-w-2xl ${
+                        hoveredImage === 'hike1' ? 'scale-105 shadow-2xl shadow-cyan-500/20' : 'scale-100'
+                      }`}
+                      onMouseEnter={() => setHoveredImage('hike1')}
+                      onMouseLeave={() => setHoveredImage(null)}
+                    >
+                      <img
+                        src="/images/m1.jpg"
+                        alt="Hiking journey"
+                        className="w-full rounded-lg"
+                      />
+                      {hoveredImage === 'hike1' && (
+                        <div className="absolute inset-0 bg-gradient-to-t from-cyan-500/10 to-transparent pointer-events-none" />
+                      )}
+                    </div>
+                    {/* Shahrukh Khan quote added below first image */}
+                        <p className="text-gray-300 mt-4 text-center italic text-sm">
+                          Invoke your Shahrukh Khan, celebrate the peak!
+                        </p>
+                      
+                  </div>
+
+                  {/* Rest of content - Only visible when expanded */}
+                  {expandedArticle1 && (
+                    <div className="mt-8 text-gray-300 text-sm leading-relaxed space-y-8">
+                      <div className="space-y-4">
+                        <p className="leading-relaxed">
+                          At the beginning of the hike, I remembered a song by the singer Shaan from the movie Jab We Met which loosely translates to some journeys are more beautiful than the destination. "Hum jo chalne lage…" So true for the surroundings on the way.
+                        </p>
+                        
+                        <p className="leading-relaxed font-semibold">
+                          Here's what I think is common between Investing and Hiking -
+                        </p>
+                        
+                        <div className="space-y-6 mt-4">
+                          <div>
+                            <p className="leading-relaxed font-bold text-white">DYOR - do your own research. Preparation is key.</p>
+                            <p className="leading-relaxed">Markets are more rewarding to those who are better prepared. I went into the hike without knowing what to expect. No snacks, no bug spray, no hiking shoes. On the other hand, my companion on the hike was much better prepared. Thankfully!!</p>
+                          </div>
+                          
+                          <div>
+                            <p className="leading-relaxed font-bold text-white">Conditions keep changing. Nothing is constant.</p>
+                            <p className="leading-relaxed">Conditions on the hike keep changing whether its the sun, the wind, the water or for that matter that pebbles along the way. If you look at the last 5 years what the market has endured, COVID, the wars, inflation, rate hikes, cuts, Trump tariffs and what not.</p>
+                          </div>
+                          
+                          <div>
+                            <p className="leading-relaxed font-bold text-white">When times are tough, you should have a friend, a coach, a mentor you can trust.</p>
+                            <p className="leading-relaxed">A fall like the one we witnessed markets in April 2025 could rattle even the best of the investors but the right person understand your situation and would have told you it was a great opportunity to buy or at least not to panic sell. Similarly on the hike, after a slip few mins ago on the wrong path and then a few mins of anxiousness on a very steep hike, my friend kept me calm talking to me and keeping it honest, rather than telling me we were almost there.</p>
+                          </div>
+                          
+                          <div>
+                            <p className="leading-relaxed font-bold text-white">You can be afraid along the way, but need to have the dedication towards the end goal.</p>
+                            <p className="leading-relaxed">That prevents you from panicking. There are setbacks during the investing journey as well as the hike. Covid scared the best of us, not just the disease, but the market fall as well. But the bigger picture saved many from panic selling. Infact, people with courage and extra resources went in and bought further. You/your portfolio can get battered along the way but at times like those you need the courage to stay the course.</p>
+                          </div>
+                          
+                          <div>
+                            <p className="leading-relaxed font-bold text-white">Sometimes its good to have only one option.</p>
+                            <p className="leading-relaxed">Once I knew that I was hiking a very steep path, I was nervous to look behind. Feeling was should I stop and return, like sometimes an investor panics and feels when markets drop, should I sell. But I felt I had no option to return because it was too scary to look behind let alone turnaround and start going down. That's sometimes a good thing when there's only 1 option. Only one was to keep going on. Almost there, almost there, Worst is almost done I kept telling myself during the anxious moments.</p>
+                          </div>
+                          
+                          <div>
+                            <p className="leading-relaxed font-bold text-white">My friend told me you can't sell your 401k without penalty, so effectively there's only one option...</p>
+                            <p className="leading-relaxed">keep the investing going / stay invested for long term is the market equivalent.</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Second Image */}
+                      <div className="my-8 flex flex-col items-center">
+                        <div 
+                          className={`relative overflow-hidden rounded-lg border border-slate-600 transition-all duration-300 ease-out w-full max-w-2xl ${
+                            hoveredImage === 'hike2' ? 'scale-105 shadow-2xl shadow-cyan-500/20' : 'scale-100'
+                          }`}
+                          onMouseEnter={() => setHoveredImage('hike2')}
+                          onMouseLeave={() => setHoveredImage(null)}
+                        >
+                          <img
+                            src="/images/m2.jpg"
+                            alt="Hiking path"
+                            className="w-full rounded-lg"
+                          />
+                          {hoveredImage === 'hike2' && (
+                            <div className="absolute inset-0 bg-gradient-to-t from-cyan-500/10 to-transparent pointer-events-none" />
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="space-y-4">
+                        <div>
+                          <p className="leading-relaxed font-bold text-white">There are no risk-free shortcuts, they often take more out of you than the normal route.</p>
+                          <p className="leading-relaxed">We had a choice to take the road path up or a shortcut hiking up in the direction of a hydro electric pipe, which was pure hike, steep, rocks and straight up. The shortcut was more taxing on the body, I was using all 4 limbs for a few mins mid hike coinciding with the anxious moments. Similarly, if you try shortcuts to get rich quickly in markets (leverage), unless you're very very very lucky, it will be taxing on you. There's no shortcut to success or getting rich in the market (without disproportionate risk)</p>
+                        </div>
+                      </div>
+
+                      {/* Third Image */}
+                      <div className="my-8 flex flex-col items-center">
+                        <div 
+                          className={`relative overflow-hidden rounded-lg border border-slate-600 transition-all duration-300 ease-out w-full max-w-2xl ${
+                            hoveredImage === 'hike3' ? 'scale-105 shadow-2xl shadow-cyan-500/20' : 'scale-100'
+                          }`}
+                          onMouseEnter={() => setHoveredImage('hike3')}
+                          onMouseLeave={() => setHoveredImage(null)}
+                        >
+                          <img
+                            src="/images/m3.jpg"
+                            alt="Nature and markets"
+                            className="w-full rounded-lg"
+                          />
+                          {hoveredImage === 'hike3' && (
+                            <div className="absolute inset-0 bg-gradient-to-t from-cyan-500/10 to-transparent pointer-events-none" />
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="space-y-4">
+                        <div>
+                          <p className="leading-relaxed font-bold text-white">Nature and markets both have the potential to ground you.</p>
+                          <p className="leading-relaxed">Be humble, respect them both. Have learnt and always learning from both.</p>
+                        </div>
+                      </div>
+
+                      {/* Fourth Image */}
+                      <div className="my-8 flex flex-col items-center">
+                        <div 
+                          className={`relative overflow-hidden rounded-lg border border-slate-600 transition-all duration-300 ease-out w-full max-w-2xl ${
+                            hoveredImage === 'hike4' ? 'scale-105 shadow-2xl shadow-cyan-500/20' : 'scale-100'
+                          }`}
+                          onMouseEnter={() => setHoveredImage('hike4')}
+                          onMouseLeave={() => setHoveredImage(null)}
+                        >
+                          <img
+                            src="/images/m4.png"
+                            alt="Mountain view"
+                            className="w-full rounded-lg"
+                          />
+                          {hoveredImage === 'hike4' && (
+                            <div className="absolute inset-0 bg-gradient-to-t from-cyan-500/10 to-transparent pointer-events-none" />
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="space-y-4">
+                        <div>
+                          <p className="leading-relaxed font-bold text-white">You've got to live through the pain.</p>
+                          <p className="leading-relaxed">The early slip, the minutes of anxiety and enduring pain from blisters on my feet most of the hike and yet I completed the hike. If you lived through the pain of Market fall during Covid and April 2025, you did really well. Pat yourself on the back.</p>
+                        </div>
+                        
+                        <div>
+                          <p className="leading-relaxed font-bold text-white">Market bottoms and the most treacherous part of the hike have one thing in common — peak panic.</p>
+                          <p className="leading-relaxed">You won't know the hardest part is done but that's where the highest panic is. If you get through that, gets better from there. I was much more comfortable once nervous few minutes were done and I was walking on 2 limbs again.</p>
+                        </div>
+                        
+                        <div>
+                          <p className="leading-relaxed font-bold text-white">Last but not the least, When you reach a goal, enjoy it, savour it and then get to the next.</p>
+                          <p className="leading-relaxed">Enjoy the peaks, appreciate them, celebrate them and onto the next! All time highs are good but then there will be period of consolidation and correction along the way and then All time highs all over again.</p>
+                        </div>
+                      </div>
+
+                      {/* Fifth Image */}
+                      <div className="my-8 flex flex-col items-center">
+                        <div 
+                          className={`relative overflow-hidden rounded-lg border border-slate-600 transition-all duration-300 ease-out w-full max-w-2xl ${
+                            hoveredImage === 'hike5' ? 'scale-105 shadow-2xl shadow-cyan-500/20' : 'scale-100'
+                          }`}
+                          onMouseEnter={() => setHoveredImage('hike5')}
+                          onMouseLeave={() => setHoveredImage(null)}
+                        >
+                          <img
+                            src="/images/m5.jpg"
+                            alt="Reaching the peak"
+                            className="w-full rounded-lg"
+                          />
+                          {hoveredImage === 'hike5' && (
+                            <div className="absolute inset-0 bg-gradient-to-t from-cyan-500/10 to-transparent pointer-events-none" />
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="space-y-4">
+                        <p className="leading-relaxed">
+                          Having finished the hike and back, that spanned about 9 hours give or take and 20+ kms including the wrong paths, I reached my hotel and realized I had done some damage to my right shoulder. But, the adrenaline kept me going unfazed during the hike. When I shared this with my friend Khaoula, she said and I quote her - "Hiking is a war against ourselves where our discipline pushes us to keep going and our desire to rest pushes back".
+                        </p>
+                        
+                        <p className="leading-relaxed">
+                          Thank you Khaoula Morchid for being a friend, coach and companion on the hike. Giving me pep talk and almonds along the way and also, for taking some pics during my vulnerable moment :)
+                        </p>
+                        
+                        <p className="leading-relaxed">
+                          Until next time…
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Show Read More/Less button */}
+                  {!isSharedView && (
+                    <button
+                      id="article-1-button"
+                      onClick={() => {
+                        console.log("🔵 Article 1 button clicked");
+                        console.log("Current expandedArticle1:", expandedArticle1);
+                        console.log("Setting to:", !expandedArticle1);
+                        setExpandedArticle1(!expandedArticle1);
+                      }}
+                      className="mt-8 px-6 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-cyan-400 font-medium transition-all duration-200 flex items-center gap-2 group"
+                    >
+                      {expandedArticle1 ? (
+                        <>
+                          <span>Read Less</span>
+                          <span className="group-hover:-translate-y-0.5 transition-transform">↑</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Read Full Article</span>
+                          <span className="group-hover:translate-y-0.5 transition-transform">↓</span>
+                        </>
+                      )}
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </section>
+          )}
+
+
+          {/* ARTICLE 2 - AI GIVETH AND TAKETH */}
+          {(!isSharedView || expandedArticle2) && (
   
 
           <section id="ai-giveth" className="mb-16">
@@ -440,7 +788,7 @@ useEffect(() => {
                     </p>
                   </div>
 
-                  {expandedArticle1 && (
+                  {expandedArticle2 && (
                     <div className="mt-8 text-gray-300 text-sm leading-relaxed space-y-8">
                       <div className="space-y-4">
                         <p className="leading-relaxed">
@@ -673,16 +1021,16 @@ useEffect(() => {
                   {/* Show Read More/Less button */}
                   {!isSharedView && (
   <button
-    id="article-1-button"
+    id="article-2-button"
     onClick={() => {
-      console.log("🔵 Article 1 button clicked");
-      console.log("Current expandedArticle1:", expandedArticle1);
-      console.log("Setting to:", !expandedArticle1);
-      setExpandedArticle1(!expandedArticle1);
+      console.log("🔵 Article 2 button clicked");
+      console.log("Current expandedArticle2:", expandedArticle2);
+      console.log("Setting to:", !expandedArticle2);
+      setExpandedArticle2(!expandedArticle2);
     }}
     className="mt-8 px-6 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-cyan-400 font-medium transition-all duration-200 flex items-center gap-2 group"
   >
-    {expandedArticle1 ? (
+    {expandedArticle2 ? (
       <>
         <span>Read Less</span>
         <span className="group-hover:-translate-y-0.5 transition-transform">↑</span>
@@ -702,9 +1050,9 @@ useEffect(() => {
           )}
 
 
-          {/* ARTICLE 2 - INDIA MARKETS */}
+          {/* ARTICLE 3 - INDIA MARKETS */}
 
-          {(!isSharedView || expandedArticle2) && (
+          {(!isSharedView || expandedArticle3) && (
           
           <section id="india-markets" className="mb-16">
             <div className="p-6 bg-slate-800/60 border border-slate-700/50 rounded-xl backdrop-blur-sm">
@@ -809,7 +1157,7 @@ useEffect(() => {
                     </p>
                   </div>
 
-                  {expandedArticle2 && (
+                  {expandedArticle3 && (
                     <div className="mt-8 text-gray-300 text-sm leading-relaxed space-y-8">
                       <div className="space-y-4">
                         <p className="leading-relaxed">
@@ -924,16 +1272,16 @@ useEffect(() => {
                   {/* Show Read More/Less button */}
                  {!isSharedView && (
   <button
-    id="article-2-button"
+    id="article-3-button"
     onClick={() => {
-      console.log("🔵 Article 2 button clicked");
-      console.log("Current expandedArticle2:", expandedArticle2);
-      console.log("Setting to:", !expandedArticle2);
-      setExpandedArticle2(!expandedArticle2);
+      console.log("🔵 Article 3 button clicked");
+      console.log("Current expandedArticle3:", expandedArticle3);
+      console.log("Setting to:", !expandedArticle3);
+      setExpandedArticle3(!expandedArticle3);
     }}
     className="mt-8 px-6 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-cyan-400 font-medium transition-all duration-200 flex items-center gap-2 group"
   >
-    {expandedArticle2 ? (
+    {expandedArticle3 ? (
       <>
         <span>Read Less</span>
         <span className="group-hover:-translate-y-0.5 transition-transform">↑</span>
@@ -952,8 +1300,8 @@ useEffect(() => {
           </section>
           )}
       
-          {/* ARTICLE 3 - NATURAL GAS */}
-{(!isSharedView || expandedArticle3) && (
+          {/* ARTICLE 4 - NATURAL GAS */}
+{(!isSharedView || expandedArticle4) && (
           <section id="widowmaker" className="mb-16">
             <div className="p-6 bg-slate-800/60 border border-slate-700/50 rounded-xl backdrop-blur-sm">
               <div className="flex items-center gap-4 text-sm text-gray-400 mb-6 flex-wrap border-b border-slate-700/50 pb-4">
@@ -1057,7 +1405,7 @@ useEffect(() => {
                     </p>
                   </div>
 
-                  {expandedArticle3 && (
+                  {expandedArticle4 && (
                     <div className="mt-8 text-gray-300 text-sm leading-relaxed space-y-8">
                       <div className="space-y-4">
                         <p className="leading-relaxed">
@@ -1132,16 +1480,16 @@ useEffect(() => {
                   {/* Show Read More/Less button */}
                  {!isSharedView && (
   <button
-    id="article-3-button"
+    id="article-4-button"
     onClick={() => {
-      console.log("🔵 Article 3 button clicked");
-      console.log("Current expandedArticle3:", expandedArticle3);
-      console.log("Setting to:", !expandedArticle3);
-      setExpandedArticle3(!expandedArticle3);
+      console.log("🔵 Article 4 button clicked");
+      console.log("Current expandedArticle4:", expandedArticle4);
+      console.log("Setting to:", !expandedArticle4);
+      setExpandedArticle4(!expandedArticle4);
     }}
     className="mt-8 px-6 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-cyan-400 font-medium transition-all duration-200 flex items-center gap-2 group"
   >
-    {expandedArticle3 ? (
+    {expandedArticle4 ? (
       <>
         <span>Read Less</span>
         <span className="group-hover:-translate-y-0.5 transition-transform">↑</span>
@@ -1160,8 +1508,8 @@ useEffect(() => {
           </section>
           )}
 
-          {/* ARTICLE 4 - YEAR REVIEW */}
-{(!isSharedView || expandedArticle4) && (
+          {/* ARTICLE 5 - YEAR REVIEW */}
+{(!isSharedView || expandedArticle5) && (
           <section id="year-review" className="mb-16">
             <div className="p-6 bg-slate-800/60 border border-slate-700/50 rounded-xl backdrop-blur-sm">
               <div className="flex items-center gap-4 text-sm text-gray-400 mb-6 flex-wrap border-b border-slate-700/50 pb-4">
@@ -1264,7 +1612,7 @@ useEffect(() => {
                     </p>
                   </div>
 
-                  {expandedArticle4 && (
+                  {expandedArticle5 && (
                     <div className="mt-8 text-gray-300 text-base leading-relaxed space-y-8">
                       {/* FULL ARTICLE CONTENT */}
                       <div className="space-y-4">
@@ -1479,16 +1827,16 @@ useEffect(() => {
                   {/* Show Read More/Less button */}
                   {!isSharedView && (
   <button
-    id="article-4-button"
+    id="article-5-button"
     onClick={() => {
-      console.log("🔵 Article 4 button clicked");
-      console.log("Current expandedArticle4:", expandedArticle4);
-      console.log("Setting to:", !expandedArticle4);
-      setExpandedArticle4(!expandedArticle4);
+      console.log("🔵 Article 5 button clicked");
+      console.log("Current expandedArticle5:", expandedArticle5);
+      console.log("Setting to:", !expandedArticle5);
+      setExpandedArticle5(!expandedArticle5);
     }}
     className="mt-8 px-6 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-cyan-400 font-medium transition-all duration-200 flex items-center gap-2 group"
   >
-    {expandedArticle4 ? (
+    {expandedArticle5 ? (
       <>
         <span>Read Less</span>
         <span className="group-hover:-translate-y-0.5 transition-transform">↑</span>
@@ -1507,8 +1855,8 @@ useEffect(() => {
           </section>
           )}
 
-         {/* ARTICLE 5 - ALTSEASON */}
-{(!isSharedView || expandedArticle5) && (
+         {/* ARTICLE 6 - ALTSEASON */}
+{(!isSharedView || expandedArticle6) && (
           <section id="altseason" className="mb-16">
             <div className="p-6 bg-slate-800/60 border border-slate-700/50 rounded-xl backdrop-blur-sm">
               <div className="flex items-center gap-4 text-sm text-gray-400 mb-6 flex-wrap border-b border-slate-700/50 pb-4">
@@ -1611,7 +1959,7 @@ useEffect(() => {
                     </p>
                   </div>
 
-                  {expandedArticle5 && (
+                  {expandedArticle6 && (
                     <div className="mt-8 text-gray-300 text-base leading-relaxed space-y-8">
                 
                       {/* FULL ARTICLE CONTENT */}
@@ -1896,16 +2244,16 @@ useEffect(() => {
 
 {!isSharedView && (
   <button
-    id="article-5-button"
+    id="article-6-button"
     onClick={() => {
-      console.log("🔵 Article 5 button clicked");
-      console.log("Current expandedArticle5:", expandedArticle5);
-      console.log("Setting to:", !expandedArticle5);
-      setExpandedArticle5(!expandedArticle5);
+      console.log("🔵 Article 6 button clicked");
+      console.log("Current expandedArticle6:", expandedArticle6);
+      console.log("Setting to:", !expandedArticle6);
+      setExpandedArticle6(!expandedArticle6);
     }}
     className="mt-8 px-6 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-cyan-400 font-medium transition-all duration-200 flex items-center gap-2 group"
   >
-    {expandedArticle5 ? (
+    {expandedArticle6 ? (
       <>
         <span>Read Less</span>
         <span className="group-hover:-translate-y-0.5 transition-transform">↑</span>
