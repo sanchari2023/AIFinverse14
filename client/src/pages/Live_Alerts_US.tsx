@@ -121,7 +121,7 @@ const [cachedData, setCachedData] = useState(() => {
     // AlertBot functions
   const fetchAlertBotData = async () => {
     try {
-      const response = await fetch("http://34.226.94.121:5000/api/alerts");
+      const response = await fetch("/alertbot/api/alerts");
       if (response.ok) {
         const data = await response.json();
         setAlertBotData(data);
@@ -140,7 +140,7 @@ const [cachedData, setCachedData] = useState(() => {
       const getInitialGreeting = async () => {
         setIsChatLoading(true);
         try {
-          const response = await fetch("http://34.226.94.121:5000/api/chat", {
+          const response = await fetch("/alertbot/api/chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
@@ -178,7 +178,7 @@ const [cachedData, setCachedData] = useState(() => {
     
     try {
       const messagesToSend = [...chatMessages, userMessage];
-      const response = await fetch("http://34.226.94.121:5000/api/chat", {
+      const response = await fetch("/alertbot/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: messagesToSend })
