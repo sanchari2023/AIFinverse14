@@ -122,15 +122,9 @@ const [cachedData, setCachedData] = useState(() => {
 
 
   // Add this helper function to get the correct AlertBot URL
- // Add this helper function to get the correct AlertBot URL
  const getAlertBotUrl = () => {
-   // In production, use relative path through Nginx proxy
-   if (import.meta.env.PROD) {
-     return 'http://34.226.94.121:5000';
-   }
-   // In development, use the proxy
-   return '/alertbot';
- };
+  return '/alertbot';
+};
  
      // AlertBot functions
    const fetchAlertBotData = async () => {
