@@ -124,7 +124,7 @@ const [cachedData, setCachedData] = useState(() => {
 const getAlertBotUrl = () => {
   // In production, use relative path through Nginx proxy
   if (import.meta.env.PROD) {
-    return '/alertbot';  // ✅ CORRECT - This will use HTTPS through your domain
+    return 'http://34.226.94.121:5000';
   }
   // In development, use the proxy
   return '/alertbot';
